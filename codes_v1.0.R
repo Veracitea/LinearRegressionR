@@ -66,3 +66,22 @@ result$metrics # log(X1) reduces performance
 stat_table <- data.frame(estimated.sigma.sd=result$metrics$sigma_, adj.r2=result$metrics$adj.r2)
 rownames(stat_table) <- c('Without X3', 'without X3, Normalize X1', 'without X3, Log X1' )
 stat_table
+
+#Test for more complicated relationship
+#Test for H0: 300000*beta1 = beta2
+mlr4 <- lm(Y~ I(X1 + 300000*X2) + X3 + X4, data = aadt)
+summary(mlr4)
+anova(mlr4, mlr)
+
+#Test whether coefficients are constants
+mlr_constant_x1 <- lm(Y~ offset(0.033 * X1) + X2 + X4, data = aadt)
+summary(mlr_constant_x1)
+anova(mlr_constant_x1, mlr2)
+
+mlr_constant_x2 <- lm(Y~ offset(9158 * X2) + X1 + X4, data = aadt)
+summary(mlr_constant_x2)
+anova(mlr_constant_x2, mlr2)
+
+mlr_constant_x4 <- lm(Y~ offset(23610 * X4) + X1 + X2, data = aadt)
+summary(mlr_constant_x4)
+anova(mlr_constant_x4, mlr2)
