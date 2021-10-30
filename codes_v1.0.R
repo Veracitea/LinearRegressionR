@@ -74,14 +74,18 @@ summary(mlr4)
 anova(mlr4, mlr)
 
 #Test whether coefficients are constants
-mlr_constant_x1 <- lm(Y~ offset(0.033 * X1) + X2 + X4, data = aadt)
+mlr_constant_x1 <- lm(Y~ offset(0.033 * X1) + X2 + X3 + X4, data = aadt)
 summary(mlr_constant_x1)
-anova(mlr_constant_x1, mlr2)
+anova(mlr_constant_x1, mlr)
 
-mlr_constant_x2 <- lm(Y~ offset(9158 * X2) + X1 + X4, data = aadt)
+mlr_constant_x2 <- lm(Y~ offset(9158 * X2) + X1 + X3 + X4, data = aadt)
 summary(mlr_constant_x2)
-anova(mlr_constant_x2, mlr2)
+anova(mlr_constant_x2, mlr)
 
-mlr_constant_x4 <- lm(Y~ offset(23610 * X4) + X1 + X2, data = aadt)
+mlr_constant_x3 <- lm(Y~ offset(100 * X3) + X1 + X2 + X4, data = aadt)
+summary(mlr_constant_x3)
+anova(mlr_constant_x3, mlr)
+
+mlr_constant_x4 <- lm(Y~ offset(23610 * X4) + X1 + X2 + X3, data = aadt)
 summary(mlr_constant_x4)
-anova(mlr_constant_x4, mlr2)
+anova(mlr_constant_x4, mlr)
