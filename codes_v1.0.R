@@ -9,6 +9,7 @@ aadt_main=read.table("data/aadt.txt", header = FALSE)
 aadt <- data.frame(Y=aadt_main$V1, X1=aadt_main$V2, X2=aadt_main$V3, X3=aadt_main$V4, X4=aadt_main$V5)
 plot(aadt, panel = panel.smooth)
 cor(aadt)
+corrplot(cor(aadt), type="upper", method="color", addCoef.col="black", number.cex=0.6)
 
 # Model 0: standard MLR with only predictors
 mlr <- lm(Y~ X1+X2+X3+X4, data = aadt)
@@ -44,13 +45,13 @@ summary(mlr3)
 
 # func to scale one column
 scaler <- function(in.df, x, func, metrics){
-    in.df <- data.frame(in.df) # copy df
-    in.df[, x] <- func(in.df[, x]) # scale
-    mlr <- lm(Y~ ., data=in.df)
-    # sigma_ is estimated standard deviation of gaussian sigma
-    metrics <- list(sigma_=c(metrics$sigma_, summary(mlr)$sigma), adj.r2=c(metrics$adj.r2, summary(mlr)$adj.r.squared))
-    output <- list(summary_=summary(mlr), metrics=metrics)
-    return(output)
+  in.df <- data.frame(in.df) # copy df
+  in.df[, x] <- func(in.df[, x]) # scale
+  mlr <- lm(Y~ ., data=in.df)
+  # sigma_ is estimated standard deviation of gaussian sigma
+  metrics <- list(sigma_=c(metrics$sigma_, summary(mlr)$sigma), adj.r2=c(metrics$adj.r2, summary(mlr)$adj.r.squared))
+  output <- list(summary_=summary(mlr), metrics=metrics)
+  return(output)
 }
 metrics <- list(sigma_=summary(mlr2)$sigma, adj.r2=summary(mlr2)$adj.r.squared)
 
@@ -91,23 +92,23 @@ summary(mlr_constant_x4)
 anova(mlr_constant_x4, mlr)
 
 #Test for interaction terms
-x1c <- aadt$X1 - mean(aadt$X1)
-x3c <- aadt$X3 - mean(aadt$X3)
-x1x3 <- x1c * x3c
-mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + x1x3, data = aadt)
+mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + I(X1*X3), data = aadt)
 summary(mlr_IT)
 
-x2c <- aadt$X2 - mean(aadt$X2)
-x3c <- aadt$X3 - mean(aadt$X3)
-x2x3 <- x2c * x3c
-mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + x2x3, data = aadt)
+mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + I(X2*X3), data = aadt)
 summary(mlr_IT)
 
-x4c <- aadt$X4 - mean(aadt$X4)
-x3c <- aadt$X3 - mean(aadt$X3)
-x4x3 <- x4c * x3c
-mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + x4x3, data = aadt)
+mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + I(X4*X3), data = aadt)
 summary(mlr_IT)
+
+mlr_IT <- lm(Y~ X1 + X2 + X4 + I(X1*X2), data = aadt)
+summary(mlr_IT)
+
+mlr_IT <- lm(Y~ X1 + X2 + X4 + I(X1*X4), data = aadt)
+summary(mlr_IT)
+
+mlr_SO <- lm(Y~ X1 + X2 + X4 + I(X2^2), data = aadt)
+summary(mlr_SO)
 
 #Durbin-Watson test
 library(lmtest)
