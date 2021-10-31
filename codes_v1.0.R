@@ -90,6 +90,25 @@ mlr_constant_x4 <- lm(Y~ offset(23610 * X4) + X1 + X2 + X3, data = aadt)
 summary(mlr_constant_x4)
 anova(mlr_constant_x4, mlr)
 
+#Test for interaction terms
+x1c <- aadt$X1 - mean(aadt$X1)
+x3c <- aadt$X3 - mean(aadt$X3)
+x1x3 <- x1c * x3c
+mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + x1x3, data = aadt)
+summary(mlr_IT)
+
+x2c <- aadt$X2 - mean(aadt$X2)
+x3c <- aadt$X3 - mean(aadt$X3)
+x2x3 <- x2c * x3c
+mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + x2x3, data = aadt)
+summary(mlr_IT)
+
+x4c <- aadt$X4 - mean(aadt$X4)
+x3c <- aadt$X3 - mean(aadt$X3)
+x4x3 <- x4c * x3c
+mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + x4x3, data = aadt)
+summary(mlr_IT)
+
 #Durbin-Watson test
 library(lmtest)
 dwtest(Y ~ X1+X2+X3+X4, data = aadt)
