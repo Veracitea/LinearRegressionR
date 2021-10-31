@@ -89,3 +89,33 @@ anova(mlr_constant_x3, mlr)
 mlr_constant_x4 <- lm(Y~ offset(23610 * X4) + X1 + X2 + X3, data = aadt)
 summary(mlr_constant_x4)
 anova(mlr_constant_x4, mlr)
+
+#Durbin-Watson test
+library(lmtest)
+dwtest(Y ~ X1+X2+X3+X4, data = aadt)
+
+mlr <- lm(Y~ X1+X2+X4, data = aadt)
+mlrs <- summary(mlr)
+
+#Confidence Interval
+library(ellipse)
+plot(ellipse(mlr,c(2,3),level = 0.95),type = 'l', col = 4)
+points(coef(mlr)[2],coef(mlr)[3])
+
+#Bonferroni limit
+bon_level = 0.05/5
+confint(mlr, level = 1-bon_level)
+
+# Prediction
+con <- c(1,50000,3,60,2)
+lhat <- sum(con*coef(mlr))
+lhat
+t05 <- qt(0.975,116)
+bm <- t05*mlrs$sigma*sqrt(con%*%mlrs$cov.unscaled%*%con)
+c(lhat-bm,lhat+bm)
+c3 <- 1
+bm <- t05*mlrs$sigma*sqrt(con%*%mlrs$cov.unscaled%*%con+c3)
+c(lhat-bm,lhat+bm)
+con <- data.frame(X1=50000,X2=3,X3=60,X4 = 2)
+predict(mlr,con,interval='confidence',level=0.95)
+predict(mlr,con,interval='prediction',level=0.95) 
