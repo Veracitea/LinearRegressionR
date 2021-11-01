@@ -149,7 +149,7 @@ foo <- function(model.obj){
 }
 # summary(lm(...)) for all combinations
 lapply(lapply(dredge(mlr.combi, evaluate=FALSE), eval), foo)
-mlr.combi <- lm(Y ~ X1 + X1*X2 + X1X4 + X2 + X2X4 + X4, data=new.df)
+mlr.combi <- lm(Y ~ X1 + X1X2 + X1X4 + X2 + X2X4 + X4, data=new.df)
 summary(mlr.combi)
 
 #Durbin-Watson test
