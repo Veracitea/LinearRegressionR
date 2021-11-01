@@ -92,23 +92,65 @@ summary(mlr_constant_x4)
 anova(mlr_constant_x4, mlr)
 
 #Test for interaction terms
+# test 1
 mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + I(X1*X3), data = aadt)
 summary(mlr_IT)
 
+# test 2
 mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + I(X2*X3), data = aadt)
 summary(mlr_IT)
 
+# test 3
 mlr_IT <- lm(Y~ X1 + X2 + X3 + X4 + I(X4*X3), data = aadt)
 summary(mlr_IT)
 
+# test 4
 mlr_IT <- lm(Y~ X1 + X2 + X4 + I(X1*X2), data = aadt)
 summary(mlr_IT)
 
+# test 5
 mlr_IT <- lm(Y~ X1 + X2 + X4 + I(X1*X4), data = aadt)
 summary(mlr_IT)
 
+# test 6
 mlr_SO <- lm(Y~ X1 + X2 + X4 + I(X2^2), data = aadt)
 summary(mlr_SO)
+
+# test 7, trying all combinations
+new.df <- data.frame(aadt)
+cols <- names(aadt)[2:5]
+col.combi <- combn(cols, 2) # 4 choose 2
+for (i in 1:ncol(col.combi)){
+    column <- col.combi[, i]
+    for (ii in 1:length(column)){
+        if (ii == 1){
+            new.col <- aadt[column[ii]]
+        } else{
+            new.col <- new.col * aadt[column[ii]]
+        }
+        if (ii == length(column)){
+            names(new.col) <- paste(sapply(column, paste, collapse=''), collapse='')
+            print(paste('making', names(new.col)))
+            new.df <- cbind(new.df, new.col)
+        }
+    }
+}
+head(new.df, 1)
+
+require(MuMIn)
+mlr.combi <- lm(Y~ ., data = new.df, na.action='na.fail')
+combi <- dredge(mlr.combi)
+# returns summary(modell(...)) only if all predictors are significant (pvalue < 1e-1)
+foo <- function(model.obj){
+    out <- summary(model.obj)
+    if (sum(out$coefficients[, 4] > 1e-1) == 0){
+        return (out)
+    }
+}
+# summary(lm(...)) for all combinations
+lapply(lapply(dredge(mlr.combi, evaluate=FALSE), eval), foo)
+mlr.combi <- lm(Y ~ X1 + X1*X2 + X1X4 + X2 + X2X4 + X4, data=new.df)
+summary(mlr.combi)
 
 #Durbin-Watson test
 library(lmtest)
@@ -124,7 +166,7 @@ points(coef(mlr)[2],coef(mlr)[3])
 
 #Bonferroni limit
 bon_level = 0.05/5
-confint(mlr, level = 1-bon_level)
+confint(mlr.combi, level = 1-bon_level)
 
 # Prediction
 con <- c(1,50000,3,60,2)
@@ -137,5 +179,6 @@ c3 <- 1
 bm <- t05*mlrs$sigma*sqrt(con%*%mlrs$cov.unscaled%*%con+c3)
 c(lhat-bm,lhat+bm)
 con <- data.frame(X1=50000,X2=3,X3=60,X4 = 2)
+# con <- data.frame(X1=50000, X2=3, X4 = 2, X1X2=5e4*3, X1X4=5e4*2, X2X4=6)
 predict(mlr,con,interval='confidence',level=0.95)
 predict(mlr,con,interval='prediction',level=0.95) 
