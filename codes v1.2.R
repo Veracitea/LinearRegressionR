@@ -121,38 +121,6 @@ summary(mlr_IT)
 mlr_SO <- lm(Y~ X1 + X2 + X4 + I(X2^2), data = aadt)
 summary(mlr_SO)
 
-#Confidence Interval
-plot(ellipse(mlr,c(2,3),level = 0.95),type = 'l', col = 4)
-points(coef(mlr)[2],coef(mlr)[3])
-
-#Bonferroni limit
-bon_level = 0.05/5
-confint(mlr, level = 1-bon_level)
-bon_level.new = 0.05/8
-confint(mlr.new, level = 1-bon_level.new)
-
-
-# Prediction
-con <- c(1,50000,3,60,2)
-lhat <- sum(con*coef(mlr))
-lhat
-t05 <- qt(0.975,116)
-bm <- t05*mlrs$sigma*sqrt(con%*%mlrs$cov.unscaled%*%con)
-c(lhat-bm,lhat+bm)
-c3 <- 1
-bm <- t05*mlrs$sigma*sqrt(con%*%mlrs$cov.unscaled%*%con+c3)
-c(lhat-bm,lhat+bm)
-
-# Prediction using the full model
-con <- data.frame(X1=50000,X2=3,X3=60,X4 = 2)
-predict(mlr,con,interval='confidence',level=0.95)
-predict(mlr,con,interval='prediction',level=0.95) 
-
-# Prediction using new model
-con.new <- data.frame(X1=50000, X2=3, X4 = 2, X1X2=5e4*3, X1X4=5e4*2, X2X4=6, X2X2=9)
-predict(mlr.new,con.new,interval='confidence',level=0.95)
-predict(mlr.new,con.new,interval='prediction',level=0.95) 
-
 #final proposed model
 
 mlr_P <- lm(Y~ X1 + X2 + X4 + I(X1*X2) + I(X1*X4) + I(X2^2), data = aadt)
@@ -162,3 +130,24 @@ mlr_R <- lm(Y~ X1 + X2 + I(X1*X4) + I(X2^2), data = aadt)
 summary(mlr_R)
 
 anova(mlr_P, mlr_R)
+
+#Confidence Interval
+plot(ellipse(mlr_R,c(2,3),level = 0.95),type = 'l', col = 4)
+points(coef(mlr_R)[2],coef(mlr_R)[3])
+
+#Bonferroni limit
+bon_level = 0.05/5
+confint(mlr, level = 1-bon_level)
+bon_level_R = 0.05/5
+confint(mlr_R, level = 1-bon_level_R)
+
+# Prediction using the full model
+con <- data.frame(X1=50000,X2=3,X3=60,X4 = 2)
+predict(mlr,con,interval='confidence',level=0.95)
+predict(mlr,con,interval='prediction',level=0.95) 
+
+# Prediction using new model
+con_R <- data.frame(X1=50000, X2=3, X4=2)
+predict(mlr_R,con_R,interval='confidence',level=0.95)
+predict(mlr_R,con_R,interval='prediction',level=0.95) 
+
